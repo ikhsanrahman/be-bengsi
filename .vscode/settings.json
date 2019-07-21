@@ -1,0 +1,5 @@
+{
+    "python.pythonPath": "/home/ikhsan/github/PrivateTuitionBackend/env/bin/python",
+    "python.maxNumberOfProblems": 1000,
+    "pythonIndent.useTabOnHangingIndent": true
+}

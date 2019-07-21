@@ -12,14 +12,14 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 class Config:
     """ This is base class for configuration """
     SECRET_KEY = os.getenv('SECRET_KEY', '!@#$%^&*()?><)(*&GHJK$%')
-    DEBUG = False
+    DEBUG = True
   
     DATABASE = {
         "DRIVER"   : os.getenv('DB_DRIVER')     or "postgresql", # sqlite // postgresql // mysql
-        "USERNAME" : os.getenv('DB_USERNAME')   or "tuition",
-        "PASSWORD" : os.getenv('DB_PASSWORD')   or "tuition",
+        "USERNAME" : os.getenv('DB_USERNAME')   or "tutor",
+        "PASSWORD" : os.getenv('DB_PASSWORD')   or "tutor",
         "HOST_NAME": os.getenv('DB_HOSTNAME')   or "localhost",
-        "DB_NAME"  : os.getenv('DB_NAME')       or "db_privatetuition",
+        "DB_NAME"  : os.getenv('DB_NAME')       or "db_tutor",
     }
 
     VIDEO_FOLDER = 'data/video'
@@ -43,7 +43,7 @@ class DevelopmentConfig(Config):
                                 DATABASE["PASSWORD"] + "@" + DATABASE["HOST_NAME"] + "/" + \
                                 DATABASE["DB_NAME"] + "_dev"
     print(SQLALCHEMY_DATABASE_URI)
-    SQLALCHEMY_TRACK_MODIFICATIONS = False
+    SQLALCHEMY_TRACK_MODIFICATIONS = True
 
 #end class
 
@@ -77,8 +77,8 @@ class ProductionConfig(Config):
     SQLALCHEMY_DATABASE_URI = DATABASE["DRIVER"] + "://" + DATABASE["USERNAME"] + ":" + \
                                 DATABASE["PASSWORD"] + "@" + DATABASE["HOST_NAME"] + "/" + \
                                 DATABASE["DB_NAME"] + "_prod"
-    PRESERVE_CONTEXT_ON_EXCEPTION = False
-    SQLALCHEMY_TRACK_MODIFICATIONS = False
+    PRESERVE_CONTEXT_ON_EXCEPTION = True
+    SQLALCHEMY_TRACK_MODIFICATIONS = True
 
 #end class
 
