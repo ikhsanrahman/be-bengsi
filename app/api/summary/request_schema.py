@@ -8,19 +8,22 @@ from flask_restplus import reqparse
 
 ######################### STUDENT ####################################
 
-class RegisterSubjectRequestSchema:
+class RegisterSummaryRequestSchema:
 	"""Define all mandatory argument for creating User"""
 	parser = reqparse.RequestParser()
-	parser.add_argument("name_subject",    	type=str, required=True)
-	parser.add_argument("price",        	type=str, required=True)
-	parser.add_argument("description",   		type=str, required=True)
+	parser.add_argument("topic",    					type=str, required=True)
+	parser.add_argument("date",        				type=str, required=True)
+	parser.add_argument("time_started",   		type=str, required=True)
+	parser.add_argument("time_ended",        	type=str, required=True)
+	parser.add_argument("remarks",   					type=str, required=True)
+	parser.add_argument("sign_student",   		type=str, required=True)
+	parser.add_argument("sign_tutors",        type=str, required=True)
 
-class UpdateSubjectRequestSchema:
+class UpdateSummaryRequestSchema:
 	parser = reqparse.RequestParser()
-	parser.add_argument("name_subject",    	type=str, required=True)
-	parser.add_argument("price",        	type=str, required=True)
-	parser.add_argument("description",   		type=str, required=True)
+	parser.add_argument("topic",    					type=str, required=True)
+	parser.add_argument("date",        				type=str, required=True)
+	parser.add_argument("time_started",   		type=str, required=True)
+	parser.add_argument("time_ended",        	type=str, required=True)
+	parser.add_argument("remarks",   					type=str, required=True)
 
-class SearchSubjectNameRequestSchema:
-	parser = reqparse.RequestParser()
-	parser.add_argument("name",    					type=str, required=True)

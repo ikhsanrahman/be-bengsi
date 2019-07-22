@@ -53,6 +53,15 @@ class SearchNameStudent(Resource) :
     searchStudent = StudentProcess().searchStudentByName(payload)
     return searchStudent
 
+@api.route('/<string:student_uuid>/student/<string:tutor_uuid>/tutor/choosetutor')
+class ChoosingTutor(Resource) :
+
+  @api.doc('student choose tutor')
+  def get(self, student_uuid, tutor_uuid) :
+
+    chooseTutor = StudentProcess().choosingTutor(student_uuid, tutor_uuid)
+    return chooseTutor
+
 @api.route('')
 class Student(Resource):
   @api.doc('get all Student')
@@ -63,9 +72,7 @@ class Student(Resource):
 
   @api.doc('registering new Student')
   def post(self):
-      
       payload = RegisterStudentRequestSchema().parser.parse_args(strict=True)
-
       errors = StudentSchema().load(payload).errors
       if errors :
           return errors
@@ -83,7 +90,7 @@ class Student(Resource):
       return result
 
 @api.route('/<string:student_uuid>')
-class UpdateDeleteStudent(Resource):
+class UpdateUnactivateStudent(Resource):
     
     @api.doc('update a Student')
     def put(self, student_uuid):

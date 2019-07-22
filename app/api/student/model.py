@@ -26,8 +26,8 @@ class StudentProcess:
 		
 		if not get_student:
 			new_Student = Student(full_name = payload['full_name'], email=payload['email'], \
-								password=payload['password'], gender=payload['gender'], grade=payload['grade'], \
-								school=payload['school'],  phone_number=payload['phone_number'], address=payload['address'] )
+				password=payload['password'], gender=payload['gender'], grade=payload['grade'], \
+				school=payload['school'],  phone_number=payload['phone_number'], address=payload['address'] )
 			new_Student.generate_password_hash(payload['password'])
 			new_Student.created_at = TIME
 			db.session.add(new_Student)
@@ -63,6 +63,21 @@ class StudentProcess:
 			return err.requestSuccess("remove Student has succeed")
 		if not get_student:
 			return err.requestFailed("no Student available")
+
+	def choosingTutor(self, student_uuid, tutor_uuid):
+		get_student = Student.query.filter_by(student_uuid=student_uuid).first()
+		get_tutor = Tutor.query.filter_by(tutor_uuid=tutor_uuid, is_working=True, activation=True).first()
+
+		if get_student :
+			if get_tutor:
+				get_tutor.subscribers.append(get_student)
+				db.session.commit()
+				return err.requestSuccess("student choose tutor has succeed")
+			if not get_tutor:
+				return err.requestFailed ("tutor that you choose not available")
+
+		if not get_student:
+			return err.requestFailed("no student available")
 
 	def updatePassword(self, payload, student_uuid):
 		get_student = Student.query.filter_by(student_uuid=student_uuid, email=payload['email']).first()

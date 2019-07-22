@@ -4,7 +4,7 @@ import unittest
 from flask_migrate  import Migrate, MigrateCommand
 from flask_script   import Manager, Shell
 
-from app.api.db_model import Admin
+from app.api.db_model import *
 from app.api.router.router import blueprint
 
 # from waitress import serve
@@ -14,7 +14,7 @@ from app.api.create_app import run_app, db
 app = run_app(os.getenv("ENV") or "dev")
 
 app.register_blueprint(blueprint, url_prefix="/api/v1")
-
+app.app_context().push()
 
 manager = Manager(app)
 migrate = Migrate(compare_type=True)
@@ -37,6 +37,19 @@ def test():
 	if result.wasSuccessful():
 		return 0
 	return 1
+
+def make_shell_context():
+    """ create shell context here"""
+    return {
+        'app'            : app,
+        'db'             : db,
+        'tutor'           : Tutor,
+        'subject'    : Subject,
+        'student'           : Student,
+        'summary'         : Summary,
+    }
+
+manager.add_command("shell", Shell(make_context=make_shell_context))
 
 # @manager.command
 # def init():

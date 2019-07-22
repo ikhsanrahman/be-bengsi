@@ -9,9 +9,9 @@ from app.api.config.config import Config
 TIME = Config.time()
 err = error.Error
 
-class StudentProcess:
+class SummaryProcess:
 
-	def getStudents(self):
+	def getSummaries(self):
 		students = Student.query.filter_by(status=True).all()
 		result = StudentSchema(many=True).dump(students).data
 		if students :
@@ -19,16 +19,22 @@ class StudentProcess:
 
 		if not students:
 			return err.requestFailed("no student available")
+	def signSummary(self, payload):
+		subject = Subject.query.filter_by(name_subject=payload['name_subject'], status=True).first()
 
-	def createStudent(self, payload):
-		responses = {}
-		get_student = Student.query.filter_by(email=payload['email']).first()
-		
-		if not get_student:
-			new_Student = Student(full_name = payload['full_name'], email=payload['email'], \
-								password=payload['password'], gender=payload['gender'], grade=payload['grade'], \
-								school=payload['school'],  phone_number=payload['phone_number'], address=payload['address'] )
-			new_Student.generate_password_hash(payload['password'])
+		if payload['student_uuid']:
+			student = Student.query.filter_by(student_uuid=payload['student_uuid']).first()
+
+		if payload['tutor_uuid']:
+			tutor = Tutor.query.filter_by(tutor_uuid=payload['tutor_uuid'], is_working=True, activation=True).first()
+
+	def createSummary(self, payload, tutor_uuid):
+		get_tutor = Tutor.query.filter_by(tutor_uuid=tutor_uuid, is_working=True, activation=True).first()
+
+		if not get_tutor:
+			new_summary = Student(topic = payload['topic'], email=payload['date'], \
+								time_started=payload['time_started'], time_ended=payload['time_ended'], remarks=payload['remarks'], \
+								sign_tutor=payload['sign_tutor'])
 			new_Student.created_at = TIME
 			db.session.add(new_Student)
 			db.session.commit()
@@ -37,7 +43,7 @@ class StudentProcess:
 		if get_student :
 			return err.requestFailed("Student with that email already existed")
 
-	def updateStudent(self, payload, student_uuid):
+	def updateSummary(self, payload, student_uuid):
 		get_student = Student.query.filter_by(student_uuid=student_uuid).first()
 
 		if get_student :

@@ -103,7 +103,7 @@ class TutorProcess:
 		return err.requestFailed("login failed")
 
 	def tutorIsWorking(self, payload, tutor_uuid):
-		get_tutor = Tutor.query.filter_by(tutor_uuid=tutor_uuid, status_login=True, is_working=True, activation=True).first()
+		get_tutor = Tutor.query.filter_by(tutor_uuid=tutor_uuid, status_login=True, activation=True).first()
 
 		if get_tutor:
 			if payload['tutoron']:

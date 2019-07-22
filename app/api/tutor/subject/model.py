@@ -22,34 +22,41 @@ class SubjectProcess:
 
 	def createSubject(self, payload, tutor_uuid):
 		get_tutor = Tutor.query.filter_by(tutor_uuid=tutor_uuid, is_working=True, activation=True).first()
-		
+		get_subject = Subject.query.filter_by(name_subject=payload['name_subject']).first()
+
 		if get_tutor:
-			new_subject = Subject(name_subject=payload['name_subject'], price=payload['price'], \
-				description=payload['description'], tutor=tutor_uuid)
-			new_subject.created_at = TIME
-			db.session.add(new_subject)
-			db.session.commit()
-			return err.requestSuccess("register subject success")
+			if not get_subject:
+				new_subject = Subject(name_subject=payload['name_subject'], price=payload['price'], \
+					description=payload['description'], owner=get_tutor)
+				new_subject.created_at = TIME
+				db.session.add(new_subject)
+				db.session.commit()
+				print('success')
+				return err.requestSuccess("register subject success")
+			else:
+				return err.requestFailed("the subject already existed")
 		
-		if not get_tutor :
+		if not get_tutor:
 			return err.requestFailed("tutor not found")
 
 	def updateSubject(self, payload, tutor_uuid, subject_uuid):
 		get_tutor = Tutor.query.filter_by(tutor_uuid=tutor_uuid, is_working=True, activation=True).first()
 		get_subject = Subject.query.filter_by(subject_uuid=subject_uuid, status=True).first()
 
-		if get_tutor and get_subject :
-			get_subject.name_subject = payload['name_subject']
-			get_subject.price = payload ['price']
-			get_subject.description	= payload['description']
-			get_subject.updated_at = TIME
-			db.session.commit()
-			return err.requestSuccess("update Subject success")
+		if get_tutor:
+			if get_subject:
+				get_subject.name_subject = payload['name_subject']
+				get_subject.price = payload ['price']
+				get_subject.description	= payload['description']
+				get_subject.updated_at = TIME
+				db.session.commit()
+				print(err.requestSuccess("update Subject success"))
+				return err.requestSuccess("update Subject success")
+			if not get_subject:
+				return err.requestFailed("that subject not existed")
 
-		if not get_tutor and get_subject:
+		if not get_tutor:
 			return err.badRequest("can not update")
-		else:
-			return err.badRequest("something wrong")
 
 	def unactivateSubject(self, subject_uuid):
 		get_subject = Subject.query.filter_by(subject_uuid=subject_uuid, status=True).first()

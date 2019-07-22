@@ -15,6 +15,5 @@ class Admin:
 class Subject:
 	api = Namespace('Subject', description='api related to Subject')
 
-
-# class Product:
-# 	api = Namespace('Product', description="api for product")
+class Summary:
+	api = Namespace('Summary', description="api for Summary between Student and tutor")

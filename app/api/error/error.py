@@ -4,15 +4,15 @@ from werkzeug.http import HTTP_STATUS_CODES
 class BaseError:
 
   def errResponse(status_code, message=None):
-      error = {}
+      errors = {}
 
       if message:
-          error["errors"] = message
-          error['status_code'] = status_code
+        errors["error"] = message
+        errors["status_code"] = status_code
       else:
-          error["errors"] = HTTP_STATUS_CODES.get(status_code, 'Unknown Error'),
-      #end if
-      return error, status_code
+        errors["error"] = HTTP_STATUS_CODES.get(status_code, 'Unknown Error'),
+
+      return errors, status_code
 
 class Error(BaseError):
     def requestSuccess(message=None):

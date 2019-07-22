@@ -33,8 +33,8 @@ class Admin(db.Model):
 
 
 tutoring = db.Table('tutoring',
-    db.Column('tutor_uuid', UUID(as_uuid=True), db.ForeignKey('tutors.tutor_uuid')),
-    db.Column('student_uuid', UUID(as_uuid=True), db.ForeignKey('students.student_uuid'))
+  db.Column('tutor_uuid', UUID(as_uuid=True), db.ForeignKey('tutors.tutor_uuid')),
+  db.Column('student_uuid', UUID(as_uuid=True), db.ForeignKey('students.student_uuid'))
 )
 
 class Student(db.Model):
@@ -58,9 +58,9 @@ class Student(db.Model):
   deleted_at              = db.Column(db.DateTime)
   time_login              = db.Column(db.DateTime, default=TIME)
   time_logout             = db.Column(db.DateTime)
-  tutoring                = db.relationship('Tutor', secondary=tutoring, lazy='subquery',
-                            backref=db.backref('tutoring', lazy=True))
-  summary                 = db.relationship('Summary', backref='students', lazy=True)
+  subscriptions           = db.relationship('Tutor', secondary=tutoring, lazy='subquery',
+                            backref=db.backref('subscribers', lazy="dynamic"))
+  summary                 = db.relationship('Summary', backref='subscribers', lazy=True)
 
   def generate_password_hash(self, password) :
     self.password_hash = generate_password_hash(password)
@@ -70,6 +70,28 @@ class Student(db.Model):
 
   def __repr__(self):
     return '<this is {}>'.format(self.full_name)
+
+class HistoryStudent(db.Model):
+  __tablename__ = "history_student"
+
+  id                      = db.Column(db.Integer, unique=True, primary_key=True, autoincrement=True)
+  history_uuid            = db.Column(UUID(as_uuid=True), unique=True, primary_key=True, default=uid())
+  subject                 = db.Column(db.String(255))
+  tutor                   = db.Column(db.String(255))
+  number_learning         = db.Column(db.Integer)
+  created_at              = db.Column(db.DateTime, default=TIME)
+  deleted_at              = db.Column(db.DateTime)
+  # summary                 = db.relationship('Summary', backref='subscribers', lazy=True)
+
+  def generate_password_hash(self, password) :
+    self.password_hash = generate_password_hash(password)
+
+  def check_password_hash(self, password) :
+    return check_password_hash(self.password_hash, password)
+
+  def __repr__(self):
+    return '<this is {}>'.format(self.full_name)
+
 
 class Tutor(db.Model):
   __tablename__ = "tutors"
@@ -99,8 +121,8 @@ class Tutor(db.Model):
   time_tutor_off              = db.Column(db.DateTime)
   time_unactivated              = db.Column(db.DateTime)
   time_reactivated            = db.Column(db.DateTime)
-  subject                     = db.relationship('Subject', backref='tutors', lazy=True)
-  summary                     = db.relationship('Summary', backref='tutors', lazy=True)
+  subject                     = db.relationship('Subject', backref='owner', lazy=True)
+  summary                     = db.relationship('Summary', backref='owner', lazy=True)
 
   def generate_password_hash(self, password) :
     self.password_hash = generate_password_hash(password)
