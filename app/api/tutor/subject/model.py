@@ -23,7 +23,6 @@ class SubjectProcess:
 	def createSubject(self, payload, tutor_uuid):
 		get_tutor = Tutor.query.filter_by(tutor_uuid=tutor_uuid, is_working=True, activation=True).first()
 		get_subject = Subject.query.filter_by(name_subject=payload['name_subject']).first()
-
 		if get_tutor:
 			if not get_subject:
 				new_subject = Subject(name_subject=payload['name_subject'], price=payload['price'], \
@@ -31,7 +30,6 @@ class SubjectProcess:
 				new_subject.created_at = TIME
 				db.session.add(new_subject)
 				db.session.commit()
-				print('success')
 				return err.requestSuccess("register subject success")
 			else:
 				return err.requestFailed("the subject already existed")

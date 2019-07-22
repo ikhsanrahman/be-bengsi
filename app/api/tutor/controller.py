@@ -54,13 +54,19 @@ class SearchNameTutor(Resource) :
     searchTutor = TutorProcess().searchTutorByName(payload)
     return searchTutor
 
+@api.route('/showtutor')
+class ShowTutorSubject(Resource):
+  def get(self):
+    result = TutorProcess().showTutor()
+    return result
 
 @api.route('')
 class Tutor(Resource):
   @api.doc('get all tutor')
   def get(self):
+    payload = GetTutorRequestSchema().parser.parse_args(strict=True)
 
-    result = TutorProcess().getTutors() 
+    result = TutorProcess().getTutors(payload) 
     return result
 
   @api.doc('registering new tutor')

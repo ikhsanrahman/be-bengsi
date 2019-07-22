@@ -64,17 +64,17 @@ class StudentProcess:
 		if not get_student:
 			return err.requestFailed("no Student available")
 
-	def choosingTutor(self, student_uuid, tutor_uuid):
+	def choosingSubject(self, student_uuid, subject_uuid):
 		get_student = Student.query.filter_by(student_uuid=student_uuid).first()
-		get_tutor = Tutor.query.filter_by(tutor_uuid=tutor_uuid, is_working=True, activation=True).first()
-
+		get_subject = Subject.query.filter_by(subject_uuid=subject_uuid).first()
+		
 		if get_student :
-			if get_tutor:
-				get_tutor.subscribers.append(get_student)
+			if get_subject:
+				get_subject.subscribers.append(get_student)
 				db.session.commit()
-				return err.requestSuccess("student choose tutor has succeed")
-			if not get_tutor:
-				return err.requestFailed ("tutor that you choose not available")
+				return err.requestSuccess("student choose subject has succeed")
+			if not get_subject:
+				return err.requestFailed ("subject that you choose not available")
 
 		if not get_student:
 			return err.requestFailed("no student available")

@@ -11,14 +11,57 @@ err = error.Error
 
 class TutorProcess:
 
-	def getTutors(self):
+	def showTutor(self):
+		responses = {}
+		responses['records'] = []
+		contain = {}
+		contain['subject'] = []
+		value_subject = {}
 		tutors = Tutor.query.filter_by(activation=True, is_working=True).all()
-		result = TutorSchema(many=True).dump(tutors).data
-		if tutors :
-			return jsonify(result)
+		for tutor in tutors:
+			contain['tutor'] = tutor.full_name
+			if len(tutor.subject) > 0:
+				for subject in tutor.subject:
+					# value_subject['subject_uuid'] = subject.subject_uuid
+					# value_subject['subject'] = subject.name_subject
+					# value_subject['price'] = subject.price
+					# value_subject['description'] = subject.description
+					contain['subject'].append(dict(subject))
 
-		if not tutors:
-			return err.requestFailed("no tutor available")
+			if len(tutor.subject) == 0:
+					contain['subject'] = []
+			
+			responses['records'].append(dict(contain))
+
+		return responses
+
+	def getTutors(self, payload):
+		if payload['status_true']:
+			tutors = Tutor.query.filter_by(activation=True, is_working=True).all()
+			result = TutorSchema(many=True).dump(tutors).data
+			if tutors :
+				return jsonify(result)
+
+			if not tutors:
+				return err.requestFailed("no tutor available")
+
+		if payload['status_false']:
+			tutors = Tutor.query.filter_by(activation=False, is_working=True).all()
+			result = TutorSchema(many=True).dump(tutors).data
+			if tutors :
+				return jsonify(result)
+
+			if not tutors:
+				return err.requestFailed("no tutor available")
+
+		if not payload['status_false'] and not payload['status_true']:
+			tutors = Tutor.query.filter_by(is_working=True).all()
+			result = TutorSchema(many=True).dump(tutors).data
+			if tutors :
+				return jsonify(result)
+
+			if not tutors:
+				return err.requestFailed("no tutor available")
 
 	def createTutor(self, payload):
 		responses = {}

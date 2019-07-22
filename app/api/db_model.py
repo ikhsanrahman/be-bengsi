@@ -33,7 +33,7 @@ class Admin(db.Model):
 
 
 tutoring = db.Table('tutoring',
-  db.Column('tutor_uuid', UUID(as_uuid=True), db.ForeignKey('tutors.tutor_uuid')),
+  db.Column('subject_uuid', UUID(as_uuid=True), db.ForeignKey('subjects.subject_uuid')),
   db.Column('student_uuid', UUID(as_uuid=True), db.ForeignKey('students.student_uuid'))
 )
 
@@ -51,14 +51,14 @@ class Student(db.Model):
   phone_number            = db.Column(db.String(255))
   school                  = db.Column(db.String(255))
   address                 = db.Column(db.String(255))
-  status_login            = db.Column(db.Boolean, default=True)
+  status_login            = db.Column(db.Boolean, default=False)
   activation              = db.Column(db.Boolean, default=True)
   created_at              = db.Column(db.DateTime, default=TIME)
   updated_at              = db.Column(db.DateTime) # time activated, time_reactivated,
   deleted_at              = db.Column(db.DateTime)
   time_login              = db.Column(db.DateTime, default=TIME)
   time_logout             = db.Column(db.DateTime)
-  subscriptions           = db.relationship('Tutor', secondary=tutoring, lazy='subquery',
+  subscriptions           = db.relationship('Subject', secondary=tutoring, lazy='subquery',
                             backref=db.backref('subscribers', lazy="dynamic"))
   summary                 = db.relationship('Summary', backref='subscribers', lazy=True)
 
@@ -70,6 +70,23 @@ class Student(db.Model):
 
   def __repr__(self):
     return '<this is {}>'.format(self.full_name)
+
+class Subject(db.Model):
+  __tablename__ = "subjects"
+
+  id                          = db.Column(db.Integer, unique=True, primary_key=True, autoincrement=True)
+  subject_uuid                = db.Column(UUID(as_uuid=True), unique=True, primary_key=True, default=uid())
+  name_subject                = db.Column(db.String(255))
+  price                       = db.Column(db.Integer, default=0)
+  description                 = db.Column(db.Text)
+  created_at                  = db.Column(db.DateTime, default=TIME)
+  updated_at                  = db.Column(db.DateTime)
+  deleted_at                  = db.Column(db.DateTime)
+  status                      = db.Column(db.Boolean, default=True)
+  tutor                       = db.Column(UUID(as_uuid=True), db.ForeignKey('tutors.tutor_uuid'))
+
+  def __repr__(self):
+    return '< {} this subject belongs to {}>'.format(self.name_subject, self.tutor)
 
 class HistoryStudent(db.Model):
   __tablename__ = "history_student"
@@ -132,23 +149,6 @@ class Tutor(db.Model):
 
   def __repr__(self):
     return '<this is {}>'.format(self.full_name)
-
-class Subject(db.Model):
-  __tablename__ = "subjects"
-
-  id                          = db.Column(db.Integer, unique=True, primary_key=True, autoincrement=True)
-  subject_uuid                = db.Column(UUID(as_uuid=True), unique=True, primary_key=True, default=uid())
-  name_subject                = db.Column(db.String(255))
-  price                       = db.Column(db.Integer, default=0)
-  description                 = db.Column(db.Text)
-  created_at                  = db.Column(db.DateTime, default=TIME)
-  updated_at                  = db.Column(db.DateTime)
-  deleted_at                  = db.Column(db.DateTime)
-  status                      = db.Column(db.Boolean, default=True)
-  tutor                       = db.Column(UUID(as_uuid=True), db.ForeignKey('tutors.tutor_uuid'))
-
-  def __repr__(self):
-    return '< {} this subject belongs to {}>'.format(self.name_subject, self.tutor)
     
 
 class Summary(db.Model):

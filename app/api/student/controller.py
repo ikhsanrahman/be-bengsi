@@ -53,13 +53,13 @@ class SearchNameStudent(Resource) :
     searchStudent = StudentProcess().searchStudentByName(payload)
     return searchStudent
 
-@api.route('/<string:student_uuid>/student/<string:tutor_uuid>/tutor/choosetutor')
-class ChoosingTutor(Resource) :
+@api.route('/<string:student_uuid>/student/<string:subject_uuid>/subject/choosesubject')
+class ChoosingSubject(Resource) :
 
   @api.doc('student choose tutor')
-  def get(self, student_uuid, tutor_uuid) :
+  def get(self, student_uuid, subject_uuid) :
 
-    chooseTutor = StudentProcess().choosingTutor(student_uuid, tutor_uuid)
+    chooseTutor = StudentProcess().choosingSubject(student_uuid, subject_uuid)
     return chooseTutor
 
 @api.route('')

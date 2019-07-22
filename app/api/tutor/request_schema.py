@@ -18,6 +18,7 @@ class RegisterTutorRequestSchema:
 	parser.add_argument("gender", 			type=str, required=True)
 	parser.add_argument("education",        	type=str, required=True)
 	parser.add_argument("address",			type=str, required=True)
+	parser.add_argument("experience",		type=str, required=True)
 
 #end class
 
@@ -46,6 +47,10 @@ class TutorIsWorkingRequestSchema:
 	parser.add_argument("tutoroff",    					type=bool)
 	parser.add_argument("tutoron",    					type=bool)
 
+class GetTutorRequestSchema:
+	parser = reqparse.RequestParser()
+	parser.add_argument("status_true",    					type=bool)
+	parser.add_argument("status_false",    					type=bool)	
 
 
 class UpdatePasswordRequestSchema:

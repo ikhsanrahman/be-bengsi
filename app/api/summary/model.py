@@ -11,14 +11,38 @@ err = error.Error
 
 class SummaryProcess:
 
-	def getSummaries(self):
-		students = Student.query.filter_by(status=True).all()
-		result = StudentSchema(many=True).dump(students).data
-		if students :
-			return jsonify(result)
+	def getSummaries(self, payload):
+		if payload['student_uuid']:
+			result = []
+			data = {}
+			student = Student.query.filter_by(student_uuid=payload['student_uuid']).first()
+			if student:
+				for subject in student.subscriptions:
+					data['subject'] = subject.name_subject
+					data['name_tutor'] = subject.owner.full_name
+					data['tutor_handphone'] = subject.owner.phone_number
+					result.append(dict(data))
+			return result
 
-		if not students:
-			return err.requestFailed("no student available")
+		if payload['tutor_uuid']:
+			# subject, nama_student, kelas, sekolah, alamat
+			result = []
+			data = {}
+			data['student'] = []
+			contain = {}
+			tutor = Tutor.query.filter_by(tutor_uuid=payload['tutor_uuid'], is_working=True, activation=True).first()
+			for subject in tutor.subject:
+				data['subject'] = subject.name_subject
+				for student in subject.subscriber:
+					contain['name_student'] = student.name_student
+					contain['grade'] = student.grade
+					contain['school'] = student.school
+					contain['address'] =  student.address
+					contain['phone_number'] = student.phone_number
+					data['student'].append(dict(contain))
+				result.append(data)
+			return result
+
 	def signSummary(self, payload):
 		subject = Subject.query.filter_by(name_subject=payload['name_subject'], status=True).first()
 
@@ -59,95 +83,3 @@ class SummaryProcess:
 
 		if not get_student:
 			return err.badRequest("not available Student")
-
-	def removeStudent(self, student_uuid):
-		get_student = Student.query.filter_by(student_uuid=student_uuid).first()
-
-		if get_student :
-			db.session.delete(get_student)
-			db.session.commit()
-			return err.requestSuccess("remove Student has succeed")
-		if not get_student:
-			return err.requestFailed("no Student available")
-
-	def updatePassword(self, payload, student_uuid):
-		get_student = Student.query.filter_by(student_uuid=student_uuid, email=payload['email']).first()
-
-		if student:
-			student.password = payload['new_password']
-			student.generate_password_hash(payload['new_password'])
-			student.updated_at = TIME
-			db.session.commit()
-			return err.requestSuccess("edit password success")
-
-		if not Student:
-			return err.requestFailed("Student is not available")
-
-
-	def forgetPassword(self, payload):
-		student = Student.query.filter_by(email=payload['email']).first()
-
-		if student:
-			student.password = payload['new_password']
-			student.generate_password_hash(payload['new_password'])
-			student.updated_at = TIME
-			db.session.commit()
-			return err.requestSuccess("edit forget password success")
-
-		if not Student:
-			return err.requestFailed("Student is not available")
-
-	def loginStudent(self, payload):
-		student = Student.query.filter_by(email=payload['email'], status=False).first()
-		if student and student.check_password_hash(payload['password']):
-			student.status = True
-			student.time_login = TIME
-			db.session.commit()
-			result = StudentSchema().dump(student).data
-			return jsonify(result)
-		return err.requestFailed("login failed")
-
-	def logoutStudent(self, student_uuid):
-		student = Student.query.filter_by(student_uuid=student_uuid, status=True).first()
-		print	(student, student_uuid)
-		if student:
-			student.status = False
-			Student.time_logout = TIME
-			db.session.commit()
-			return err.requestSuccess('logout success')
-
-		return err.requestFailed("logout failed")
-
-	def unactivateStudent(self, student_uuid):
-		student = Student.query.filter_by(student_uuid=student_uuid).first()
-		if student :
-			student.status = False
-			db.session.commit()
-			return err.requestSuccess("unactivate Student success")
-		if not student :
-			return err.requestFailed("no Student can be unactivated")
-
-	def reactivateStudent(self, student_uuid):
-		student = Student.query.filter_by(student_uuid=student_uuid).first()
-		if student :
-			if student.status == True:
-				return err.requestFailed("Student already active")
-			if student.status == False:
-				student.status = True
-				db.session.commit()
-				return err.requestSuccess("reactivate Student has succeed")
-		
-		if not Student:
-			return err.badRequest("seller is not available")
-
-	def searchStudentByName(self, payload):
-		fetchStudents = Student.query.all()
-		result = []
-		for student in fetchStudents :
-			if payload['name'] in student.full_name :
-				Student_ = StudentSchema().dump(student).data
-				result.append(Student_)
-		if result:
-			return result
-
-		return err.badRequest("No Student detected")

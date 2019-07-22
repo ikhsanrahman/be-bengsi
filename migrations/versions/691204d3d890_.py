@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: cc1eda18b287
+Revision ID: 691204d3d890
 Revises: 
-Create Date: 2019-07-17 23:49:51.826985
+Create Date: 2019-07-22 22:43:31.645758
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
-revision = 'cc1eda18b287'
+revision = '691204d3d890'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -30,6 +30,18 @@ def upgrade():
     sa.PrimaryKeyConstraint('id', 'admin_uuid'),
     sa.UniqueConstraint('admin_uuid')
     )
+    op.create_table('history_student',
+    sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
+    sa.Column('history_uuid', postgresql.UUID(as_uuid=True), nullable=False),
+    sa.Column('subject', sa.String(length=255), nullable=True),
+    sa.Column('tutor', sa.String(length=255), nullable=True),
+    sa.Column('number_learning', sa.Integer(), nullable=True),
+    sa.Column('created_at', sa.DateTime(), nullable=True),
+    sa.Column('deleted_at', sa.DateTime(), nullable=True),
+    sa.PrimaryKeyConstraint('id', 'history_uuid'),
+    sa.UniqueConstraint('history_uuid'),
+    sa.UniqueConstraint('id')
+    )
     op.create_table('students',
     sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
     sa.Column('student_uuid', postgresql.UUID(as_uuid=True), nullable=False),
@@ -42,7 +54,8 @@ def upgrade():
     sa.Column('phone_number', sa.String(length=255), nullable=True),
     sa.Column('school', sa.String(length=255), nullable=True),
     sa.Column('address', sa.String(length=255), nullable=True),
-    sa.Column('status', sa.Boolean(), nullable=True),
+    sa.Column('status_login', sa.Boolean(), nullable=True),
+    sa.Column('activation', sa.Boolean(), nullable=True),
     sa.Column('created_at', sa.DateTime(), nullable=True),
     sa.Column('updated_at', sa.DateTime(), nullable=True),
     sa.Column('deleted_at', sa.DateTime(), nullable=True),
@@ -57,11 +70,16 @@ def upgrade():
     sa.Column('tutor_uuid', postgresql.UUID(as_uuid=True), nullable=False),
     sa.Column('full_name', sa.String(length=255), nullable=True),
     sa.Column('email', sa.String(length=255), nullable=True),
+    sa.Column('phone_number', sa.String(length=255), nullable=True),
     sa.Column('password', sa.String(length=255), nullable=True),
     sa.Column('password_hash', sa.String(length=255), nullable=True),
     sa.Column('address', sa.String(length=255), nullable=True),
     sa.Column('education', sa.String(length=255), nullable=True),
-    sa.Column('status', sa.Boolean(), nullable=True),
+    sa.Column('experience', sa.Text(), nullable=True),
+    sa.Column('gender', sa.String(length=100), nullable=True),
+    sa.Column('status_login', sa.Boolean(), nullable=True),
+    sa.Column('is_working', sa.Boolean(), nullable=True),
+    sa.Column('activation', sa.Boolean(), nullable=True),
     sa.Column('number_like', sa.Integer(), nullable=True),
     sa.Column('number_dislike', sa.Integer(), nullable=True),
     sa.Column('created_at', sa.DateTime(), nullable=True),
@@ -69,13 +87,17 @@ def upgrade():
     sa.Column('deleted_at', sa.DateTime(), nullable=True),
     sa.Column('time_login', sa.DateTime(), nullable=True),
     sa.Column('time_logout', sa.DateTime(), nullable=True),
+    sa.Column('time_tutor_on', sa.DateTime(), nullable=True),
+    sa.Column('time_tutor_off', sa.DateTime(), nullable=True),
+    sa.Column('time_unactivated', sa.DateTime(), nullable=True),
+    sa.Column('time_reactivated', sa.DateTime(), nullable=True),
     sa.PrimaryKeyConstraint('id', 'tutor_uuid'),
     sa.UniqueConstraint('email'),
     sa.UniqueConstraint('id'),
     sa.UniqueConstraint('tutor_uuid')
     )
     op.create_table('subjects',
-    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
     sa.Column('subject_uuid', postgresql.UUID(as_uuid=True), nullable=False),
     sa.Column('name_subject', sa.String(length=255), nullable=True),
     sa.Column('price', sa.Integer(), nullable=True),
@@ -84,15 +106,38 @@ def upgrade():
     sa.Column('updated_at', sa.DateTime(), nullable=True),
     sa.Column('deleted_at', sa.DateTime(), nullable=True),
     sa.Column('status', sa.Boolean(), nullable=True),
-    sa.Column('tutor', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['tutor'], ['tutors.id'], ),
-    sa.PrimaryKeyConstraint('id', 'subject_uuid')
+    sa.Column('tutor', postgresql.UUID(as_uuid=True), nullable=True),
+    sa.ForeignKeyConstraint(['tutor'], ['tutors.tutor_uuid'], ),
+    sa.PrimaryKeyConstraint('id', 'subject_uuid'),
+    sa.UniqueConstraint('id'),
+    sa.UniqueConstraint('subject_uuid')
+    )
+    op.create_table('summaries',
+    sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
+    sa.Column('summary_uuid', postgresql.UUID(as_uuid=True), nullable=False),
+    sa.Column('topic', sa.Text(), nullable=True),
+    sa.Column('date', sa.DateTime(), nullable=True),
+    sa.Column('time_started', sa.DateTime(), nullable=True),
+    sa.Column('time_ended', sa.DateTime(), nullable=True),
+    sa.Column('sign_student', sa.Boolean(), nullable=True),
+    sa.Column('sign_tutor', sa.Boolean(), nullable=True),
+    sa.Column('remarks', sa.Text(), nullable=True),
+    sa.Column('updated_at', sa.DateTime(), nullable=True),
+    sa.Column('deleted_at', sa.DateTime(), nullable=True),
+    sa.Column('status', sa.Boolean(), nullable=True),
+    sa.Column('student', postgresql.UUID(as_uuid=True), nullable=True),
+    sa.Column('tutor', postgresql.UUID(as_uuid=True), nullable=True),
+    sa.ForeignKeyConstraint(['student'], ['students.student_uuid'], ),
+    sa.ForeignKeyConstraint(['tutor'], ['tutors.tutor_uuid'], ),
+    sa.PrimaryKeyConstraint('id', 'summary_uuid'),
+    sa.UniqueConstraint('id'),
+    sa.UniqueConstraint('summary_uuid')
     )
     op.create_table('tutoring',
-    sa.Column('student_id', sa.Integer(), nullable=True),
-    sa.Column('tutor_id', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['student_id'], ['students.id'], ),
-    sa.ForeignKeyConstraint(['tutor_id'], ['tutors.id'], )
+    sa.Column('subject_uuid', postgresql.UUID(as_uuid=True), nullable=True),
+    sa.Column('student_uuid', postgresql.UUID(as_uuid=True), nullable=True),
+    sa.ForeignKeyConstraint(['student_uuid'], ['students.student_uuid'], ),
+    sa.ForeignKeyConstraint(['subject_uuid'], ['subjects.subject_uuid'], )
     )
     # ### end Alembic commands ###
 
@@ -100,8 +145,10 @@ def upgrade():
 def downgrade():
     # ### commands auto generated by Alembic - please adjust! ###
     op.drop_table('tutoring')
+    op.drop_table('summaries')
     op.drop_table('subjects')
     op.drop_table('tutors')
     op.drop_table('students')
+    op.drop_table('history_student')
     op.drop_table('admin')
     # ### end Alembic commands ###

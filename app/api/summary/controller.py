@@ -15,14 +15,17 @@ api = Summary.api
 err = error.Error
 
 
-@api.route('')
+@api.route('/getsummaries')
 class Summary(Resource):
   @api.doc('get all Summary')
   def get(self):
+    payload = GetSummariesRequestSchema().parser.parse_args(strict=True)
 
-    result = summaryProcess().getSummaries() 
+    result = SummaryProcess().getSummaries(payload) 
     return result
 
+@api.route('/<string:tutor_uuid>/createsummary')
+class AddingSummary(Resource):
   @api.doc('Create new summary')
   def post(self):
       payload = RegisterSummaryRequestSchema().parser.parse_args(strict=True)
@@ -35,7 +38,7 @@ class Summary(Resource):
       return result
 
 
-@api.route('/<string:summary_uuid>/updatesummary')
+@api.route('/<string:tutor_uuid>/tutor/<string:summary_uuid>/updatesummary')
 class UpdateSummary(Resource):
     
     @api.doc('update a summary')
