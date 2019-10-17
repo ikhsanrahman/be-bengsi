@@ -21,11 +21,13 @@ class SubjectProcess:
 			return err.requestFailed("no subjects available")
 
 	def createSubject(self, payload, tutor_uuid):
-		get_tutor = Tutor.query.filter_by(tutor_uuid=tutor_uuid, is_working=True, activation=True).first()
-		get_subject = Subject.query.filter_by(name_subject=payload['name_subject']).first()
+		get_tutor = Tutor.query.filter_by(tutor_uuid=tutor_uuid, status_login=True,is_working=True, \
+			activation=True).first()
+		get_subject = Subject.query.filter_by(subject_name=payload['subject_name']).first()
+		
 		if get_tutor:
 			if not get_subject:
-				new_subject = Subject(name_subject=payload['name_subject'], price=payload['price'], \
+				new_subject = Subject(subject_name=payload['subject_name'], price=payload['price'], \
 					description=payload['description'], owner=get_tutor)
 				new_subject.created_at = TIME
 				db.session.add(new_subject)
@@ -38,17 +40,17 @@ class SubjectProcess:
 			return err.requestFailed("tutor not found")
 
 	def updateSubject(self, payload, tutor_uuid, subject_uuid):
-		get_tutor = Tutor.query.filter_by(tutor_uuid=tutor_uuid, is_working=True, activation=True).first()
+		get_tutor = Tutor.query.filter_by(tutor_uuid=tutor_uuid, status_login=True, is_working=True, \
+			activation=True).first()
 		get_subject = Subject.query.filter_by(subject_uuid=subject_uuid, status=True).first()
 
 		if get_tutor:
 			if get_subject:
-				get_subject.name_subject = payload['name_subject']
+				get_subject.subject_name=payload['subject_name']
 				get_subject.price = payload ['price']
 				get_subject.description	= payload['description']
 				get_subject.updated_at = TIME
 				db.session.commit()
-				print(err.requestSuccess("update Subject success"))
 				return err.requestSuccess("update Subject success")
 			if not get_subject:
 				return err.requestFailed("that subject not existed")

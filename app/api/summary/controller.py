@@ -15,34 +15,53 @@ api = Summary.api
 err = error.Error
 
 
+@api.route('/info')
+class GetInfoTutorOrStudent(Resource):
+  # student can switch and see subject, tutor and vice versa
+  @api.doc('get info')
+  def get(self):
+    payload = GetSummariesRequestSchema().parser.parse_args(strict=True)
+
+    result = SummaryProcess().getTutorStudentSubject(payload) 
+    return result
+
 @api.route('/getsummaries')
-class Summary(Resource):
-  @api.doc('get all Summary')
+class GetInfoTutorOrStudent(Resource):
+  # student can see their summary based on subject which has been switched
+  @api.doc('get all summaries')
   def get(self):
     payload = GetSummariesRequestSchema().parser.parse_args(strict=True)
 
     result = SummaryProcess().getSummaries(payload) 
     return result
 
-@api.route('/<string:tutor_uuid>/createsummary')
-class AddingSummary(Resource):
+@api.route('/signstudent')
+class SignStudent(Resource):
+  @api.doc('sign by student')
+  def get(self):
+    payload = GetSummariesRequestSchema().parser.parse_args(strict=True)
+
+    result = SummaryProcess().signStudent(payload) 
+    return result
+
+@api.route('/<string:tutor_uuid>/tutor/createsummary')
+class CreatingSummary(Resource):
   @api.doc('Create new summary')
-  def post(self):
-      payload = RegisterSummaryRequestSchema().parser.parse_args(strict=True)
+  def post(self, tutor_uuid):
 
-      errors = SummarySchema().load(payload).errors
-      if errors :
-          return errors
+    payload = RegisterSummaryRequestSchema().parser.parse_args(strict=True)
+    errors = SummarySchema().load(payload).errors
+    if errors :
+        return errors
 
-      result = SummaryProcess().createSummary(payload)
-      return result
+    result = SummaryProcess().createSummary(payload, tutor_uuid)
+    return result
 
-
-@api.route('/<string:tutor_uuid>/tutor/<string:summary_uuid>/updatesummary')
+@api.route('/<string:tutor_uuid>/updatesummary')
 class UpdateSummary(Resource):
     
     @api.doc('update a summary')
-    def put(self, summary_uuid):
+    def put(self, tutor_uuid):
        
         payload = UpdateSummaryRequestSchema().parser.parse_args(strict=True)
 
@@ -50,5 +69,5 @@ class UpdateSummary(Resource):
         if errors :
             return errors
 
-        updateSummary = SummaryProcess().updateSummary(payload, summary_uuid)
+        updateSummary = SummaryProcess().updateSummary(payload, tutor_uuid)
         return updateSummary

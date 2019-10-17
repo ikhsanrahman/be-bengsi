@@ -17,7 +17,7 @@ class TutorProcess:
 		responses['records'] = []
 		contain = {}
 		contain['subject'] = []
-		value_subject = {}
+		value = {}
 		tutors = Tutor.query.filter_by(activation=True, is_working=True).all()
 		
 		for tutor in tutors:

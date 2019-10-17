@@ -55,7 +55,7 @@ class SearchNameTutor(Resource) :
     searchTutor = TutorProcess().searchTutorByName(payload)
     return searchTutor
 
-@api.route('/showtutor')
+@api.route('/showtutor') #show all tutors with subject also
 class ShowTutorSubject(Resource):
   def get(self):
     result = TutorProcess().showTutor()

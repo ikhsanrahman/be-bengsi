@@ -54,7 +54,7 @@ class Subject(Resource):
 
     errors = UpdateSubjectSchema().validate(payload)
     if errors :
-        return errors
+      return errors
 
     updateSubject = SubjectProcess().updateSubject(payload, tutor_uuid, subject_uuid)
     return updateSubject
@@ -66,7 +66,6 @@ class UnactivateSubject(Resource):
   def get(self, subject_uuid):
     result = SubjectProcess().unactivateSubject(subject_uuid)
     return result
-
 
 @api.route('/<string:subject_uuid>/reactivate')
 class ReactivateSubject(Resource) :

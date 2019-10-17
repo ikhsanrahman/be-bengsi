@@ -11,13 +11,13 @@ from flask_restplus import reqparse
 class RegisterSubjectRequestSchema:
 	"""Define all mandatory argument for creating User"""
 	parser = reqparse.RequestParser()
-	parser.add_argument("name_subject",    	type=str, required=True)
+	parser.add_argument("subject_name",    	type=str, required=True)
 	parser.add_argument("price",        	type=str, required=True)
 	parser.add_argument("description",   		type=str, required=True)
 
 class UpdateSubjectRequestSchema:
 	parser = reqparse.RequestParser()
-	parser.add_argument("name_subject",    	type=str, required=True)
+	parser.add_argument("subject_name",    	type=str, required=True)
 	parser.add_argument("price",        	type=str, required=True)
 	parser.add_argument("description",   		type=str, required=True)
 

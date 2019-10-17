@@ -32,7 +32,6 @@ class Config:
         return time
 #end class
 
-
 class DevelopmentConfig(Config):
     """ This is class for development configuration """
     DEBUG = True
