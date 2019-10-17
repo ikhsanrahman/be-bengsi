@@ -1,6 +1,7 @@
 from app.api.create_app import db 
 from app.api.db_model import *
 from app.api.tutor.serializer import TutorSchema
+from app.api.tutor.subject.serializer import SubjectSchema
 from app.api.error import error
 from flask import jsonify
 
@@ -16,20 +17,15 @@ class TutorProcess:
 		responses['records'] = []
 		contain = {}
 		contain['subject'] = []
-		value_subject = {}
+		value = {}
 		tutors = Tutor.query.filter_by(activation=True, is_working=True).all()
 		for tutor in tutors:
 			contain['tutor'] = tutor.full_name
-			if len(tutor.subject) > 0:
-				for subject in tutor.subject:
-					# value_subject['subject_uuid'] = subject.subject_uuid
-					# value_subject['subject'] = subject.name_subject
-					# value_subject['price'] = subject.price
-					# value_subject['description'] = subject.description
-					contain['subject'].append(dict(subject))
+			subject = SubjectSchema(many=True).dump(tutor.subject).data
+			contain['subject'] = subject
 
-			if len(tutor.subject) == 0:
-					contain['subject'] = []
+			if len(subject) == 0:
+				contain['subject'] = []
 			
 			responses['records'].append(dict(contain))
 

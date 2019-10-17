@@ -16,8 +16,10 @@ class RegisterSummaryRequestSchema:
 	parser.add_argument("time_started",   		type=str, required=True)
 	parser.add_argument("time_ended",        	type=str, required=True)
 	parser.add_argument("remarks",   					type=str, required=True)
-	parser.add_argument("sign_student",   		type=str, required=True)
-	parser.add_argument("sign_tutors",        type=str, required=True)
+	parser.add_argument("student_uuid",   		type=str)
+	parser.add_argument("subject_uuid",      	type=str)
+	parser.add_argument("summary_uuid",				type=str)
+	
 
 class UpdateSummaryRequestSchema:
 	parser = reqparse.RequestParser()
@@ -26,10 +28,17 @@ class UpdateSummaryRequestSchema:
 	parser.add_argument("time_started",   		type=str, required=True)
 	parser.add_argument("time_ended",        	type=str, required=True)
 	parser.add_argument("remarks",   					type=str, required=True)
+	parser.add_argument("student_uuid",   		type=str)
+	parser.add_argument("subject_uuid",      	type=str)
+	parser.add_argument("summary_uuid",				type=str)
 
 class GetSummariesRequestSchema:	
 	parser = reqparse.RequestParser()
 	parser.add_argument("student_uuid",    					type=str)
 	parser.add_argument("tutor_uuid",        				type=str)
+	parser.add_argument("subject_uuid",        				type=str)
+	parser.add_argument("summary_uuid",        				type=str)
+	parser.add_argument("subject_name",        				type=str)
+
 
 

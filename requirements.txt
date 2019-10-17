@@ -1,0 +1,12 @@
+flask
+flask_migrate
+flask_sqlalchemy
+flask_marshmallow
+flask_script
+waitress
+arrow
+flask_restplus
+jwt
+marshmallow
+psycopg2-binary
+flask_cors

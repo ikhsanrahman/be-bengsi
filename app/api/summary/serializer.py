@@ -9,196 +9,95 @@ def cannot_be_blank(string):
     raise ValidationError(" Data cannot be blank")
 #end def
 
-class TutorSchema(Schema):
+class SummarySchema(Schema):
   id                  = fields.Int()
-  tutor_uuid          = fields.String(attribute="tutor_uuid")
-  full_name           = fields.String(required=True, validate=cannot_be_blank)
-  email               = fields.Email(required=True, validate=cannot_be_blank)
-  password            = fields.String(required=True, validate=cannot_be_blank)
-  password_hash       = fields.String(attribute="password_hash")
-  gender              = fields.String(required=True, validate=cannot_be_blank)
-  phone_number        = fields.String(required=True, validate=cannot_be_blank)
-  education           = fields.String(required=True, validate=cannot_be_blank)
-  address             = fields.String(required=True, validate=cannot_be_blank)
-  status_login        = fields.Method("bool_to_status")
-  is_working          = fields.Method("is_working_to_status")
-  created_at          = fields.DateTime()
-  updated_at          = fields.DateTime()
-  deleted_at          = fields.DateTime()
-  # video            = fields.String(load_only)
-  # paper            = fields
-        
+  topic               = fields.String(attribute="topic", required=True, validate=cannot_be_blank)
+  date                = fields.DateTime(required=True, validate=cannot_be_blank)
+  time_started        = fields.DateTime(required=True, validate=cannot_be_blank)
+  time_ended          = fields.DateTime(required=True, validate=cannot_be_blank)
+  remarks             = fields.String()
+  sign_student        = fields.Boolean()
+  sign_tutor          = fields.Boolean()
+          
     
-  def bool_to_status(self, obj):
-    status = "ACTIVE"
-    if obj.status == False:
-      status = "INACTIVE"
-    return status
-  
-  # change boolean to string
-  def is_working_to_status(self, obj):
-    is_working = "ACTIVE"
-    if obj.is_working != True:
-      is_working = "INACTIVE"
-    return is_working
-
-  @validates('full_name')
-  def validate_full_name(self, full_name):
+  @validates('topic')
+  def validate_topic(self, topic):
     # allow all character
-    pattern = r"^[a-z-A-Z_ ]+$"
-    if len(full_name) < 2:
-      raise ValidationError('Invalid {}. min is 2 character'.format(full_name))
-    if len(full_name) > 40:
-      raise ValidationError('Invalid {}, max is 40 character'.format(full_name))
-    if re.match(pattern, full_name) is None:
-      raise ValidationError('Invalid {}. only alphabet is allowed'.format(full_name))
+    pattern = r"^[a-z-A-Z_0-9&@#$%^*.,'?/+={}'()! ]+$"
+    if len(topic) < 2:
+      raise ValidationError('Invalid {}. min is 2 character'.format(topic))
+    if len(topic) > 50:
+      raise ValidationError('Invalid {}, max is 50 character'.format(topic))
+    if re.match(pattern, topic) is None:
+      raise ValidationError('Invalid {}. only alphabet is allowed'.format(topic))
   #end def
 
-  @validates('password')
-  def validate_password(self, password):
-    # allow all characters except number
-    pattern = r"."
-    if len(password) < 2:
-      raise ValidationError('Invalid password, min is 2 characters')
-    if len(password) > 40:
-      raise ValidationError('Invalid password, min is 40 character')
-    if re.match(pattern, password) is None:
-      raise ValidationError('options can not be number at all. see the rule of options')
+  # @validates('date')
+  # def validate_date(self, date):
+  #   # allow all characters except number
+  #   pattern = r'^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[01]|0[1-9]|[12][0-9])T(2[0-3]|[01][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[01][0-9]):[0-5][0-9])?$'
+  #   date = str(date)
+  #   if re.match(pattern, date) is None:
+  #     raise ValidationError('see the rule of options')
 
-  @validates('phone_number')
-  def validate_phone_number(self, phone_number):
-    # allow all character
-    pattern = r"^[0-9]+$"
-    if len(phone_number) < 2:
-      raise ValidationError('Invalid {}. min is 2 character'.format(phone_number))
-    if len(phone_number) > 40:
-      raise ValidationError('Invalid {}}, max is 40 character'.format(phone_number))
-    if  re.match(pattern, phone_number) is None:
-      raise ValidationError('Invalid {}}. only alphabet is allowed'.format(phone_number))
-  #end def
+  # @validates('time_started')
+  # def validate_time_started(self, time_started):
+  #   # allow all character
+  #   pattern = r'^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[01]|0[1-9]|[12][0-9])T(2[0-3]|[01][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[01][0-9]):[0-5][0-9])?$'
+  #   time_started = str(time_started)
+  #   if  re.match(pattern, time_started) is None:
+  #     raise ValidationError('Invalid {}. only alphabet is allowed'.format(time_started))
+  # #end def
 
-  @validates('gender')
-  def validate_gender(self, gender):
-    # only allow alphabet character and space
-    pattern = r"^[a-z-A-Z_ ]+$"
-    if len(gender) < 2:
-      raise ValidationError('Invalid gender')
-    if len(gender) > 20:
-      raise ValidationError('Invalid gender, max is 20 character')
-    if re.match(pattern, gender) is None:
-      raise ValidationError('Invalid gender, only Human allowed to create the field, not you')
-  #end def
-
-  @validates('address')
-  def validate_address(self, address):
-    # allow all characters except number
-    pattern = r"."
-    if len(address) < 2:
-      raise ValidationError('Invalid address, min is 2 characters')
-    if len(address) > 40:
-      raise ValidationError('Invalid address, min is 40 character')
-    if re.match(pattern, address) is None:
-      raise ValidationError('see the rule of address')
-
-  @validates('education')
-  def validate_gender(self, gender):
-    # only allow alphabet character and space
-    pattern = r"^[a-z-A-Z_0-9 ]+$"
-    if len(gender) < 2:
-      raise ValidationError('Invalid gender')
-    if len(gender) > 20:
-      raise ValidationError('Invalid gender, max is 20 character')
-    if  re.match(pattern, gender) is None:
-      raise ValidationError('Invalid gender, only Human allowed to create the field, not you')
-  #end def
-
-class LoginTutorSchema(Schema):
-  email               = fields.Email(required=True, validate=cannot_be_blank)
-  password            = fields.String(required=True, validate=cannot_be_blank)
-
-  @validates('password')
-  def validate_password(self, password):
-    # allow all characters except number
-    pattern = r"."
-    if len(password) < 2:
-      raise ValidationError('Invalid password, min is 2 characters')
-    if len(password) > 40:
-      raise ValidationError('Invalid password, min is 40 character')
-    if re.match(pattern, password) is None:
-      raise ValidationError('options can not be number at all. see the rule of options')
-
+  # @validates('time_ended')
+  # def validate_time_ended(self, time_ended):
+  #   # only allow alphabet character and space
+  #   pattern = r'^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[01]|0[1-9]|[12][0-9])T(2[0-3]|[01][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[01][0-9]):[0-5][0-9])?$'
+  #   time_ended=str(time_ended)
+  #   if re.match(pattern, time_ended) is None:
+  #     raise ValidationError('Invalid time_ended, only Human allowed to create the field, not you')
+  # #end def
 
 class UpdateTutorSchema(Schema):
-  full_name               = fields.Str(required=True, validate=cannot_be_blank) 
-  phone_number            = fields.Str(required=True, validate=cannot_be_blank)
-  gender                  = fields.Str(required=True, validate=cannot_be_blank)
-  address                 = fields.Str(required=True, validate=cannot_be_blank)
-  education               = fields.Str(required=True, validate=cannot_be_blank)
+  id                  = fields.Int()
+  topic               = fields.String(required=True, validate=cannot_be_blank)
+  date                = fields.DateTime(required=True)
+  time_started        = fields.DateTime(required=True)
+  time_ended          = fields.DateTime(required=True)
+  remarks             = fields.String()
     
-  @validates('full_name')
-  def validate_full_name(self, full_name):
+  @validates('topic')
+  def validate_topic(self, topic):
     # allow all character
-    pattern = r"^[a-z-A-Z_ ]+$"
-    if len(full_name) < 2:
-      raise ValidationError('Invalid {}. min is 2 character'.format(full_name))
-    if len(full_name) > 40:
-      raise ValidationError('Invalid {}, max is 40 character'.format(full_name))
-    if  re.match(pattern, full_name) is None:
-      raise ValidationError('Invalid {}. only alphabet is allowed'.format(full_name))
+    pattern = r"^[a-z-A-Z_0-9,.& ]+$"
+
+    if re.match(pattern, topic) is None:
+      raise ValidationError('Invalid {}. only alphabet is allowed'.format(topic))
   #end def
 
-  @validates('phone_number')
-  def validate_phone_number(self, phone_number):
-    # allow all character
-    pattern = r"^[0-9]+$"
-    if len(phone_number) < 2:
-      raise ValidationError('Invalid {}. min is 2 character'.format(phone_number))
-    if len(phone_number) > 15:
-      raise ValidationError('Invalid {}}, max is 15 character'.format(phone_number))
-    if  re.match(pattern, phone_number) is None:
-      raise ValidationError('Invalid {}}. only alphabet is allowed'.format(phone_number))
-  #end def
+  # @validates('date')
+  # def validate_date(self, date):
+  #   # allow all characters except number
+  #   pattern = r'^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[01]|0[1-9]|[12][0-9])T(2[0-3]|[01][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[01][0-9]):[0-5][0-9])?$'
+  #   date=str(date)
+  #   if re.match(pattern, date) is None:
+  #     raise ValidationError('see the rule of options')
 
-  @validates('gender')
-  def validate_gender(self, gender):
-    # only allow alphabet character and space
-    pattern = r"^[a-z-A-Z_ ]+$"
-    if len(gender) < 2:
-      raise ValidationError('Invalid gender')
-    if len(gender) > 20:
-      raise ValidationError('Invalid gender, max is 20 character')
-    if  re.match(pattern, gender) is None:
-      raise ValidationError('Invalid gender, only Human allowed to create the field, not you')
-  #end def
+  # @validates('time_started')
+  # def validate_time_started(self, time_started):
+  #   # allow all character
+  #   pattern = r'^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[01]|0[1-9]|[12][0-9])T(2[0-3]|[01][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[01][0-9]):[0-5][0-9])?$'
+  #   time_started = str(time_started)
 
-  @validates('education')
-  def validate_gender(self, gender):
-    # only allow alphabet character and space
-    pattern = r"^[a-z-A-Z_0-9 ]+$"
-    if len(gender) < 2:
-      raise ValidationError('Invalid gender')
-    if len(gender) > 20:
-      raise ValidationError('Invalid gender, max is 20 character')
-    if  re.match(pattern, gender) is None:
-      raise ValidationError('Invalid gender, only Human allowed to create the field, not you')
-  #end def
+  #   if  re.match(pattern, time_started) is None:
+  #     raise ValidationError('Invalid {}}. only alphabet is allowed'.format(time_started))
+  # #end def
 
-  @validates('address')
-  def validate_address(self, address):
-    # allow all characters except number
-    pattern = r"."
-    if len(address) < 2:
-      raise ValidationError('Invalid address, min is 2 characters')
-    if len(address) > 40:
-      raise ValidationError('Invalid address, min is 40 character')
-    if re.match(pattern, address) is None:
-      raise ValidationError('see the rule of address')
-
-
-class UpdatePasswordSchema(Schema):
-  new_password            = fields.Str(required=True, validate=cannot_be_blank)
-  confirm_new_password    = fields.Str(required=True, validate=cannot_be_blank)
-
-class ForgetPasswordSchema(Schema):
-  new_password            = fields.Str(required=True, validate=cannot_be_blank)
-  confirm_new_password    = fields.Str(required=True, validate=cannot_be_blank)
+  # @validates('time_ended')
+  # def validate_time_ended(self, time_ended):
+  #   # only allow alphabet character and space
+  #   pattern = r'^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[01]|0[1-9]|[12][0-9])T(2[0-3]|[01][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[01][0-9]):[0-5][0-9])?$'
+  #   time_ended = str(time_ended)
+  #   if re.match(pattern, time_ended) is None:
+  #     raise ValidationError('Invalid time_ended, only Human allowed to create the field, not you')
+  # #end def

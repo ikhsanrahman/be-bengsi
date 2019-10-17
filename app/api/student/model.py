@@ -120,7 +120,7 @@ class StudentProcess:
 
 	def logoutStudent(self, student_uuid):
 		student = Student.query.filter_by(student_uuid=student_uuid, status_login=True).first()
-		print	(student, student_uuid)
+
 		if student:
 			student.status_login = False
 			Student.time_logout = TIME

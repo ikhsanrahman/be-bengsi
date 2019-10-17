@@ -18,6 +18,9 @@ TIME = config.Config.time()
 def uid():
   return uuid.uuid4()
 
+def randomPaymentId():
+  return random.randrange(1,1000)
+
 
 class Admin(db.Model):
   __tablename__ = "admin"
@@ -27,6 +30,7 @@ class Admin(db.Model):
   name                      = db.Column(db.String(255))
   password                  = db.Column(db.String(255))
   password_hash             = db.Column(db.String(255))
+  profit                    = db.Column(db.Integer, default=0)
   time_login                = db.Column(db.DateTime)
   time_logout               = db.Column(db.DateTime)
   time_created              = db.Column(db.DateTime)
@@ -60,7 +64,7 @@ class Student(db.Model):
   time_logout             = db.Column(db.DateTime)
   subscriptions           = db.relationship('Subject', secondary=tutoring, lazy='subquery',
                             backref=db.backref('subscribers', lazy="dynamic"))
-  summary                 = db.relationship('Summary', backref='subscribers', lazy=True)
+  history                 = db.relationship('HistoryStudent', backref='history', lazy=True)
 
   def generate_password_hash(self, password) :
     self.password_hash = generate_password_hash(password)
@@ -76,7 +80,7 @@ class Subject(db.Model):
 
   id                          = db.Column(db.Integer, unique=True, primary_key=True, autoincrement=True)
   subject_uuid                = db.Column(UUID(as_uuid=True), unique=True, primary_key=True, default=uid())
-  name_subject                = db.Column(db.String(255))
+  subject_name                = db.Column(db.String(255))
   price                       = db.Column(db.Integer, default=0)
   description                 = db.Column(db.Text)
   created_at                  = db.Column(db.DateTime, default=TIME)
@@ -84,30 +88,33 @@ class Subject(db.Model):
   deleted_at                  = db.Column(db.DateTime)
   status                      = db.Column(db.Boolean, default=True)
   tutor                       = db.Column(UUID(as_uuid=True), db.ForeignKey('tutors.tutor_uuid'))
+  summary                     = db.relationship('Summary', backref='owner', lazy=True)
 
   def __repr__(self):
-    return '< {} this subject belongs to {}>'.format(self.name_subject, self.tutor)
+    return '< {} this subject belongs to {}>'.format(self.subject_name, self.tutor)
 
+# student and history student is one to one relationship
 class HistoryStudent(db.Model):
   __tablename__ = "history_student"
 
   id                      = db.Column(db.Integer, unique=True, primary_key=True, autoincrement=True)
   history_uuid            = db.Column(UUID(as_uuid=True), unique=True, primary_key=True, default=uid())
-  subject                 = db.Column(db.String(255))
-  tutor                   = db.Column(db.String(255))
-  number_learning         = db.Column(db.Integer)
+  subject_name            = db.Column(db.String(255))
+  subject_uuid            = db.Column(UUID(as_uuid=True))
+  tutor_uuid              = db.Column(UUID(as_uuid=True))
+  tutor_name              = db.Column(db.String(255))
+  tutor_handphone         = db.Column(db.Integer)
+  date_started            = db.Column(db.DateTime)
+  date_ended              = db.Column(db.DateTime)
+  amount_meeting          = db.Column(db.Integer, default=0)
+  amount_payment          = db.Column(db.Integer, default=randomPaymentId())
+  status                  = db.Column(db.Boolean, default=True)
   created_at              = db.Column(db.DateTime, default=TIME)
   deleted_at              = db.Column(db.DateTime)
-  # summary                 = db.relationship('Summary', backref='subscribers', lazy=True)
-
-  def generate_password_hash(self, password) :
-    self.password_hash = generate_password_hash(password)
-
-  def check_password_hash(self, password) :
-    return check_password_hash(self.password_hash, password)
+  student                 = db.Column(UUID(as_uuid=True), db.ForeignKey('students.student_uuid'), nullable=True)
 
   def __repr__(self):
-    return '<this is {}>'.format(self.full_name)
+    return '<this is {}>'.format(self.history_uuid)
 
 
 class Tutor(db.Model):
@@ -129,6 +136,8 @@ class Tutor(db.Model):
   activation                  = db.Column(db.Boolean, default=False)
   number_like                 = db.Column(db.Integer, default=0)
   number_dislike              = db.Column(db.Integer, default=0)
+  current_income              = db.Column(db.Integer, default=0)
+  total_income                = db.Column(db.Integer, default=0)
   created_at                  = db.Column(db.DateTime, default=TIME)
   updated_at                  = db.Column(db.DateTime)
   deleted_at                  = db.Column(db.DateTime) # time activated, time_reactivated,
@@ -136,10 +145,10 @@ class Tutor(db.Model):
   time_logout                 = db.Column(db.DateTime)
   time_tutor_on               = db.Column(db.DateTime)
   time_tutor_off              = db.Column(db.DateTime)
-  time_unactivated              = db.Column(db.DateTime)
+  time_unactivated            = db.Column(db.DateTime)
   time_reactivated            = db.Column(db.DateTime)
   subject                     = db.relationship('Subject', backref='owner', lazy=True)
-  summary                     = db.relationship('Summary', backref='owner', lazy=True)
+  history                     = db.relationship('HistoryTutor', backref='history', lazy=True)
 
   def generate_password_hash(self, password) :
     self.password_hash = generate_password_hash(password)
@@ -150,12 +159,38 @@ class Tutor(db.Model):
   def __repr__(self):
     return '<this is {}>'.format(self.full_name)
     
+# Tutor and history tutor is one to one relationship    
+class HistoryTutor(db.Model):
+  __tablename__ = "history_tutor"
+
+  id                      = db.Column(db.Integer, unique=True, primary_key=True, autoincrement=True)
+  history_uuid            = db.Column(UUID(as_uuid=True), unique=True, primary_key=True, default=uid())
+  subject_name            = db.Column(db.String(255))
+  subject_uuid            = db.Column(UUID(as_uuid=True))
+  student_name            = db.Column(db.String(255))
+  student_uuid            = db.Column(UUID(as_uuid=True))
+  student_grade           = db.Column(db.String(255))
+  student_school          = db.Column(db.String(255))
+  student_address         = db.Column(db.Text)
+  date_started            = db.Column(db.DateTime)
+  date_ended              = db.Column(db.DateTime)
+  amount_meeting          = db.Column(db.Integer, default=0)
+  income                  = db.Column(db.Integer, default=0)
+  status                  = db.Column(db.Boolean, default=True)
+  created_at              = db.Column(db.DateTime, default=TIME)
+  updated_at              = db.Column(db.DateTime)
+  deleted_at              = db.Column(db.DateTime)
+  tutor                   = db.Column(UUID(as_uuid=True), db.ForeignKey('tutors.tutor_uuid'), nullable=True)
+
+  def __repr__(self):
+    return '<this is {}>'.format(self.history_uuid)
 
 class Summary(db.Model):
   __tablename__ = "summaries"
 
   id                          = db.Column(db.Integer, primary_key=True, unique=True, autoincrement=True)
   summary_uuid                = db.Column(UUID(as_uuid=True), unique=True, primary_key=True, default=uid())
+  subject_name                = db.Column(db.String(255))
   topic                       = db.Column(db.Text)
   date                        = db.Column(db.DateTime)
   time_started                = db.Column(db.DateTime)
@@ -163,25 +198,14 @@ class Summary(db.Model):
   sign_student                = db.Column(db.Boolean, default=False)
   sign_tutor                  = db.Column(db.Boolean, default=False)
   remarks                     = db.Column(db.Text)
+  created_at                  = db.Column(db.DateTime, default=TIME)
   updated_at                  = db.Column(db.DateTime)
   deleted_at                  = db.Column(db.DateTime)
-  status                      = db.Column(db.Boolean, default=False)
-  student                     = db.Column(UUID(as_uuid=True), db.ForeignKey('students.student_uuid'), nullable=True)
-  tutor                       = db.Column(UUID(as_uuid=True), db.ForeignKey('tutors.tutor_uuid'), nullable=True)
-
-
-# class Payment(db.Model):
-#   __tablename__ = "payments"
-
-# id                          = db.Column(db.Integer, primary_key=True)
-# amount_of_payment           = db.Column(db.String(255))
-# time                        = db.Column(db.DateTime)
-# created_at                  = db.Column(db.DateTime, default=TIME)
-# updated_at                  = db.Column(db.DateTime)
-# deleted_at                  = db.Column(db.DateTime)
-# status                      = db.Column(db.Boolean, default=False)
-# subject                     = db.Column(db.Integer, db.ForeignKey('subjects.id'), nullable=True)
-
+  status                      = db.Column(db.Boolean, default=True)
+  subject                     = db.Column(UUID(as_uuid=True), db.ForeignKey('subjects.subject_uuid'), nullable=True)
+  
+  def __repr__(self):
+    return '<this is {}>'.format(self.topic, self.subject)
 
 
 
