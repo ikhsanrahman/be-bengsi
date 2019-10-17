@@ -1,6 +1,7 @@
 from app.api.create_app import db 
 from app.api.db_model import *
 from app.api.tutor.serializer import TutorSchema
+from .subject.serializer import SubjectSchema
 from app.api.error import error
 from flask import jsonify
 
@@ -18,45 +19,47 @@ class TutorProcess:
 		contain['subject'] = []
 		value_subject = {}
 		tutors = Tutor.query.filter_by(activation=True, is_working=True).all()
+		
 		for tutor in tutors:
 			contain['tutor'] = tutor.full_name
 			if len(tutor.subject) > 0:
-				for subject in tutor.subject:
-					# value_subject['subject_uuid'] = subject.subject_uuid
-					# value_subject['subject'] = subject.name_subject
-					# value_subject['price'] = subject.price
-					# value_subject['description'] = subject.description
-					contain['subject'].append(dict(subject))
+				result = SubjectSchema(many=True).dump(tutor.subject)
+				for subject in result:
+					contain['subject'].append(subject)
 
 			if len(tutor.subject) == 0:
 					contain['subject'] = []
 			
-			responses['records'].append(dict(contain))
+			responses['records'].append(contain)
 
 		return responses
 
 	def getTutors(self, payload):
+
+		#only display tutor with status activation true
 		if payload['status_true']:
 			tutors = Tutor.query.filter_by(activation=True, is_working=True).all()
-			result = TutorSchema(many=True).dump(tutors).data
+			result = TutorSchema(many=True).dump(tutors)
 			if tutors :
 				return jsonify(result)
 
 			if not tutors:
 				return err.requestFailed("no tutor available")
 
+		#only display tutor with status activation true
 		if payload['status_false']:
 			tutors = Tutor.query.filter_by(activation=False, is_working=True).all()
-			result = TutorSchema(many=True).dump(tutors).data
+			result = TutorSchema(many=True).dump(tutors)
 			if tutors :
 				return jsonify(result)
 
 			if not tutors:
 				return err.requestFailed("no tutor available")
 
+		#display all tutor
 		if not payload['status_false'] and not payload['status_true']:
 			tutors = Tutor.query.filter_by(is_working=True).all()
-			result = TutorSchema(many=True).dump(tutors).data
+			result = TutorSchema(many=True).dump(tutors)
 			if tutors :
 				return jsonify(result)
 
@@ -66,7 +69,7 @@ class TutorProcess:
 	def createTutor(self, payload):
 		responses = {}
 		get_tutor = Tutor.query.filter_by(email=payload['email']).first()
-		
+
 		if not get_tutor:
 			new_tutor = Tutor(full_name = payload['full_name'], email=payload['email'], \
 				password=payload['password'], gender=payload['gender'], education=payload['education'], \
@@ -135,17 +138,17 @@ class TutorProcess:
 
 	def loginTutor(self, payload):
 		get_tutor = Tutor.query.filter_by(email=payload['email'], status_login=False, is_working=True, activation=True).first()
-		print(get_tutor)
+		
 		if get_tutor and get_tutor.check_password_hash(payload['password']):
 			get_tutor.time_login = TIME
 			get_tutor.status_login = True
 			db.session.commit()
-			result = TutorSchema().dump(get_tutor).data
+			result = TutorSchema().dump(get_tutor)
 			return jsonify(result)
 
 		return err.requestFailed("login failed")
 
-	def tutorIsWorking(self, payload, tutor_uuid):
+	def statusWorking(self, payload, tutor_uuid):
 		get_tutor = Tutor.query.filter_by(tutor_uuid=tutor_uuid, status_login=True, activation=True).first()
 
 		if get_tutor:
@@ -208,7 +211,7 @@ class TutorProcess:
 		result = []
 		for tutor in tutors :
 			if payload['name'] in tutor.full_name :
-				get_tutor = TutorSchema().dump(tutor).data
+				get_tutor = TutorSchema().dump(tutor)
 				result.append(get_tutor)
 		if result:
 			return result

@@ -13,7 +13,7 @@ class StudentProcess:
 
 	def getStudents(self):
 		students = Student.query.filter_by(activation=True).all()
-		result = StudentSchema(many=True).dump(students).data
+		result = StudentSchema(many=True).dump(students)
 		if students :
 			return jsonify(result)
 
@@ -69,6 +69,8 @@ class StudentProcess:
 		get_subject = Subject.query.filter_by(subject_uuid=subject_uuid).first()
 		
 		if get_student :
+			if get_subject in get_student.subscriptions:
+				return err.requestFailed("you already choosed this subject")
 			if get_subject:
 				get_subject.subscribers.append(get_student)
 				db.session.commit()
@@ -113,7 +115,7 @@ class StudentProcess:
 			student.time_login = TIME
 			student.activation = True
 			db.session.commit()
-			result = StudentSchema().dump(student).data
+			result = StudentSchema().dump(student)
 			return jsonify(result)
 
 		return err.requestFailed("login failed")
@@ -155,7 +157,7 @@ class StudentProcess:
 		result = []
 		for student in fetchStudents :
 			if payload['name'] in student.full_name :
-				Student_ = StudentSchema().dump(student).data
+				Student_ = StudentSchema().dump(student)
 				result.append(Student_)
 		if result:
 			return result

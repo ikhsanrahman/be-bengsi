@@ -22,7 +22,8 @@ class TutorLogin(Resource) :
     if payload['password'] != payload['confirm_password']:
         return err.badRequest("password doesnt not match")
         
-    errors = LoginTutorSchema().load(payload).errors
+    errors = LoginTutorSchema().validate(payload)
+
     if errors:
         return errors
 
@@ -37,11 +38,11 @@ class TutorLogout(Resource) :
     return logout
 
 @api.route('/<string:tutor_uuid>/isworking')
-class TutorOn(Resource) :
+class StatusWorking(Resource) :
   def get(self, tutor_uuid):
     payload = TutorIsWorkingRequestSchema().parser.parse_args(strict=True)
 
-    tutorOn = TutorProcess().tutorIsWorking(payload, tutor_uuid)
+    tutorOn = TutorProcess().statusWorking(payload, tutor_uuid)
     return tutorOn
 
 @api.route('/search')
@@ -72,18 +73,20 @@ class Tutor(Resource):
   @api.doc('registering new tutor')
   def post(self):
       
-      payload = RegisterTutorRequestSchema().parser.parse_args(strict=True)
+    payload = RegisterTutorRequestSchema().parser.parse_args(strict=True)
 
-      errors = TutorSchema().load(payload).errors
-      if errors :
-          return errors
+    errors = TutorSchema().validate(payload)
+    
+    if errors :
+        return errors
 
-      result = TutorProcess().createTutor(payload)
-      return result
+    result = TutorProcess().createTutor(payload)
+    return result
 
+  @api.doc('tutor forget password')
   def patch(self):
       payload = ForgetPasswordRequestSchema().parser.parse_args(strict=True)
-      errors = ForgetPasswordSchema().load(payload).errors
+      errors = ForgetPasswordSchema().validate(payload)
       if errors:
           return errors
 
@@ -91,25 +94,27 @@ class Tutor(Resource):
       return result
 
 # UPDATE and UNACTIVATE TUTOR
-@api.route('/<string:tutor_uuid>')
-class UpdateUnactivateTutor(Resource):
+@api.route('/<string:tutor_uuid>/updateprofile')
+class UpdateProfileTutor(Resource):
     
-    @api.doc('update a profile tutor')
-    def put(self, tutor_uuid):
-       
-        payload = UpdateTutorRequestSchema().parser.parse_args(strict=True)
+  @api.doc('update a profile tutor')
+  def put(self, tutor_uuid):
+     
+    payload = UpdateTutorRequestSchema().parser.parse_args(strict=True)
 
-        errors = UpdateTutorSchema().load(payload).errors
-        if errors :
-            return errors
+    errors = UpdateTutorSchema().validate(payload)
+    if errors :
+      return errors
 
-        updateTutor = TutorProcess().updateTutor(payload, tutor_uuid)
-        return updateTutor
+    updateTutor = TutorProcess().updateTutor(payload, tutor_uuid)
+    return updateTutor
 
-    @api.doc('unactivateTutor a tutor')
-    def get(self, tutor_uuid):
-        result = TutorProcess().unactivateTutor(tutor_uuid)
-        return result
+@api.route('/<string:tutor_uuid>/reactivate')
+class UnactivateTutor(Resource):
+  @api.doc('unactivateTutor a tutor')
+  def get(self, tutor_uuid):
+    result = TutorProcess().unactivateTutor(tutor_uuid)
+    return result
 
 
 @api.route('/<string:tutor_uuid>/updatepassword')
@@ -123,7 +128,7 @@ class UpdatePasswordTutor(Resource):
         if payload['new_password'] != payload['confirm_new_password'] :
             return err.requestFailed("password doesnt match")
 
-        errors = UpdatePasswordSchema().load(payload).errors
+        errors = UpdatePasswordSchema().validate(payload)
     
         if errors :
             return errors
@@ -135,6 +140,7 @@ class UpdatePasswordTutor(Resource):
 @api.route('/<string:tutor_uuid>/reactivate')
 class ReactivateTutor(Resource) :
       
-    def get(self, tutor_uuid) :
-        result = TutorProcess().reactivateTutor(tutor_uuid)
-        return result
+  @api.doc('reactivate tutor')
+  def get(self, tutor_uuid) :
+    result = TutorProcess().reactivateTutor(tutor_uuid)
+    return result
