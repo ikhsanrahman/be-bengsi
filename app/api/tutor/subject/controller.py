@@ -39,7 +39,7 @@ class Subject(Resource):
       
     payload = RegisterSubjectRequestSchema().parser.parse_args(strict=True)
 
-    errors = SubjectSchema().load(payload).errors
+    errors = SubjectSchema().validate(payload)
     if errors :
       return errors
 
@@ -52,7 +52,7 @@ class Subject(Resource):
   def put(self, tutor_uuid, subject_uuid):
     payload = UpdateSubjectRequestSchema().parser.parse_args(strict=True)
 
-    errors = UpdateSubjectSchema().load(payload).errors
+    errors = UpdateSubjectSchema().validate(payload)
     if errors :
         return errors
 

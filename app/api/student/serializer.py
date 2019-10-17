@@ -125,6 +125,7 @@ class StudentSchema(Schema):
 class LoginStudentSchema(Schema):
   email               = fields.Email(required=True, validate=cannot_be_blank)
   password            = fields.String(required=True, validate=cannot_be_blank)
+  confirm_password    = fields.String(required=True, validate=cannot_be_blank)
 
   @validates('password')
   def validate_password(self, password):

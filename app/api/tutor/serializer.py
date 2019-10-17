@@ -133,6 +133,7 @@ class TutorSchema(Schema):
 class LoginTutorSchema(Schema):
   email               = fields.Email(required=True, validate=cannot_be_blank)
   password            = fields.String(required=True, validate=cannot_be_blank)
+  confirm_password    = fields.String(required=True, validate=cannot_be_blank)
 
   @validates('password')
   def validate_password(self, password):
@@ -231,5 +232,6 @@ class UpdatePasswordSchema(Schema):
   confirm_new_password    = fields.Str(required=True, validate=cannot_be_blank)
 
 class ForgetPasswordSchema(Schema):
+  email                   = fields.Str(required=True, validate=cannot_be_blank)
   new_password            = fields.Str(required=True, validate=cannot_be_blank)
   confirm_new_password    = fields.Str(required=True, validate=cannot_be_blank)

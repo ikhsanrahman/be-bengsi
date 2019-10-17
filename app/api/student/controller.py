@@ -19,7 +19,7 @@ err = error.Error
 class Home(Resource):
   def get(self) :
     responses = {}
-    responses['Entry Gate'] = "Welcome to Tutor Private Platform " 
+    responses['Entry Gate'] = "Welcome to Muon Private Platform " 
     return jsonify(Opening=responses)
      
 @api.route('/login')
@@ -29,7 +29,7 @@ class StudentLogin(Resource) :
     if payload['password'] != payload['confirm_password']:
         return err.badRequest("password doesnt not match")
         
-    errors = LoginStudentSchema().load(payload).errors
+    errors = LoginStudentSchema().validate(payload)
     if errors:
         return errors
 
@@ -73,7 +73,7 @@ class Student(Resource):
   @api.doc('registering new Student')
   def post(self):
       payload = RegisterStudentRequestSchema().parser.parse_args(strict=True)
-      errors = StudentSchema().load(payload).errors
+      errors = StudentSchema().validate(payload)
       if errors :
           return errors
 
@@ -82,7 +82,7 @@ class Student(Resource):
 
   def patch(self):
       payload = ForgetPasswordRequestSchema().parser.parse_args(strict=True)
-      errors = ForgetPasswordSchema().load(payload).errors
+      errors = ForgetPasswordSchema().validate(payload)
       if errors:
           return errors
 
@@ -97,7 +97,7 @@ class UpdateUnactivateStudent(Resource):
        
         payload = UpdateStudentRequestSchema().parser.parse_args(strict=True)
 
-        errors = UpdateStudentSchema().load(payload).errors
+        errors = UpdateStudentSchema().validate(payload)
         if errors :
             return errors
 
@@ -121,7 +121,7 @@ class UpdatePasswordStudent(Resource):
         if payload['new_password'] != payload['confirm_new_password'] :
             return err.requestFailed("password doesnt match")
 
-        errors = UpdatePasswordSchema().load(payload).errors
+        errors = UpdatePasswordSchema().validate(payload)
     
         if errors :
             return errors

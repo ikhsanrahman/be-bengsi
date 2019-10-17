@@ -14,7 +14,7 @@ class SubjectProcess:
 	def getSubjects(self):
 		subjects = Subject.query.filter_by(status=True).all()
 		if subjects :
-			result = SubjectSchema(many=True).dump(subjects).data
+			result = SubjectSchema(many=True).dump(subjects)
 			return jsonify(result)
 
 		if not subjects:
@@ -83,8 +83,7 @@ class SubjectProcess:
 		result = []
 		for subject in subjects :
 			if payload['name'] in subject.name_subject:
-				get_subjects = SubjectSchema().dump(subject).data
-				print(get_subjects, 'wewe')
+				get_subjects = SubjectSchema().dump(subject)
 				result.append(get_subjects)
 		if result:
 			return result
